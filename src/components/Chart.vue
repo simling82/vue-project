@@ -11,12 +11,14 @@
 </template>
 
 <script>
+import Highcharts from 'highcharts'
+
 export default {
   data () {
     let data = {
       updateArgs: [true, true, {duration: 1000}],
-      uriCount: this.buildChartOptions('请求数'),
-      uriLatencySum: this.buildChartOptions('请求总耗时')
+      uriCount: this.buildChartOptions({attachment: {title: '请求数(次)', unit: '次'}}),
+      uriLatencySum: this.buildChartOptions({attachment: {title: '请求总耗时(毫秒)', unit: '毫秒'}})
     }
     return data
   },
@@ -28,35 +30,44 @@ export default {
   },
   methods: {
     init () {
-      let params = {
-        metric: '',
-        service: 'mobAttention',
-        startTime: 1530523800,
-        endTime: 1530529200,
-        aggregator: 'zimsum',
-        downsample: '1m-sum',
-        uri: '3110_1'
-      }
-      params.metric = 'uri.count'
-      this.renderChart({params: params}, this.uriCount)
-      params.metric = 'uri.latency.sum'
-      this.renderChart({params: params}, this.uriLatencySum)
-    },
-    renderChart (params, chart) {
-      // let url = 'http://localhost:8087/api/query'
-      let url = 'http://'+window.location.hostname+':8087/api/query'
-      this.$http.get(url, params).then((resp) => {
-        // get body data
-        console.info(resp)
-        let series = this.convert(resp.body)
-        console.info(series)
-        chart.series = series
-      }, (resp) => {
-        console.error(JSON.stringify(resp))
-        // error callback
+      this.renderChart({
+        params: {
+          metric: 'uri.count',
+          service: 'mobAttention',
+          startTime: 1530523800,
+          endTime: 1530529200,
+          aggregator: 'zimsum',
+          downsample: '1m-sum',
+          uri: '3110_1'
+        },
+        chart: this.uriCount
+      })
+      this.renderChart({
+        params: {
+          metric: 'uri.latency.sum',
+          service: 'mobAttention',
+          startTime: 1530523800,
+          endTime: 1530529200,
+          aggregator: 'zimsum',
+          downsample: '1m-sum',
+          uri: '3110_1'
+        },
+        chart: this.uriLatencySum
       })
     },
-    buildChartOptions (title) {
+    renderChart (option) {
+      // let url = 'http://localhost:8087/api/query'
+      let url = 'http://' + window.location.hostname + ':8087/api/query'
+      this.$http.get(url, {params: option.params}).then((resp) => {
+        // console.info(resp)
+        let series = this.convert(resp.body)
+        // console.info(series)
+        option.chart.series = series
+      }, (resp) => {
+        console.error(JSON.stringify(resp))
+      })
+    },
+    buildChartOptions (option) {
       let options = {
         chart: {
           renderTo: 'req_timeoutCount_chart_all',
@@ -70,7 +81,7 @@ export default {
         },
         title: {
           useHTML: true,
-          text: title,
+          text: option.attachment.title,
           style: {
             font: 'normal 16px Verdana, sans-serif'
           }
@@ -97,15 +108,46 @@ export default {
             events: {}
           }
         },
+        // tooltip: {
+        //   crosshairs: true,
+        //   shared: true
+        // },
         tooltip: {
           crosshairs: true,
-          shared: true
+          shared: true,
+          formatter: function () {
+            // let timeScale = this.points[0].point.timeScale
+            let formatTime = '%m-%d %H:%M:%S'
+            // if(timeScale >= 60000){
+            //     formatTime = '%m-%d %H:%M';
+            // }
+            let s = '<b>' + Highcharts.dateFormat(formatTime, this.x * 1000) + '</b>'
+            this.points.forEach((item) => {
+              s += '<br/><span style="color:' + item.series.color + '">\u25CF</span>  ' + item.series.name + ': ' + item.y + option.attachment.unit
+            })
+            // if (timeScale) {
+            //   s += '<b>, 间隔' + formatTimeScale(timeScale) + '</b>'
+            // }
+            // 自定义toolTips
+            // if (myToolTips) {
+            //   s += myToolTips(this, unitName, attachToolTipsMsg)
+            // } else {
+            //   $.each(this.points, function (index, element) {
+            //     var yValue = formatNumber(this.y, 2)
+            //     if (this.y >= 10000) {
+            //       yValue = formatNumberSize(this.y)
+            //     }
+            //     s += '<br/><span style="color:' + this.series.color + '">\u25CF</span>  ' + this.series.name + ': ' + yValue + unitName
+            //   })
+            // }
+
+            return s
+          }
         },
         exporting: {
           enabled: false
         },
-        series: [
-        ]
+        series: []
       }
       return options
     },
