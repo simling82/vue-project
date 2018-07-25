@@ -178,6 +178,13 @@ export default {
           second: '300秒',
           minute: '5分'
         }
+      } else if (scaleName === '1h-sum') {
+        return {
+          s: 3600,
+          m: 60,
+          second: '3600秒',
+          minute: '60分'
+        }
       } else {
         return {
           s: 20
