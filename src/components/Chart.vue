@@ -37,12 +37,10 @@ export default {
   data () {
     let data = {
       updateArgs: [true, true, {duration: 1000}],
-      uriCount: this.buildChartOptions({attachment: {title: '请求数(次)', unit: '次'}}),
-      uriLatencySum: this.buildChartOptions({attachment: {title: '请求总耗时(毫秒)', unit: '毫秒'}}),
+      uriCount: this.buildChartOptions({title: '请求数(次)', unit: '次'}),
+      uriLatencySum: this.buildChartOptions({title: '请求总耗时(毫秒)', unit: '毫秒'}),
       startDate: this.getTimeFomart(new Date().getTime() - 3600 * 1000),
       endDate: this.getTimeFomart(),
-      // startTimeFormat: this.getTimeFomart(this.startTime), // 先初始化开始时间
-      // endTimeFormat: this.getTimeFomart(this.endTime), // 再初始化结束时间
       minuteList: ['00', '15', '30', '45'] // 时间格式
     }
     return data
@@ -75,8 +73,8 @@ export default {
         params: {
           metric: 'uri.latency.sum',
           service: 'mobAttention',
-          startTime: 1530523800,
-          endTime: 1530529200,
+          startDate: this.startDate,
+          endDate: this.endDate,
           aggregator: 'zimsum',
           downsample: '1m-sum',
           uri: '3110_1'
@@ -114,7 +112,7 @@ export default {
         },
         title: {
           useHTML: true,
-          text: option.attachment.title,
+          text: option.title,
           style: {
             font: 'normal 16px Verdana, sans-serif'
           }
@@ -158,7 +156,7 @@ export default {
             }
             let s = '<b>' + Highcharts.dateFormat(formatTime, this.x) + ', 间隔' + timeScaleName + '</b>'
             this.points.forEach((item) => {
-              s += '<br/><span style="color:' + item.series.color + '">\u25CF</span>  ' + item.series.name + ': ' + item.y + option.attachment.unit
+              s += '<br/><span style="color:' + item.series.color + '">\u25CF</span>  ' + item.series.name + ': ' + item.y + option.unit
             })
             return s
           }
