@@ -60,7 +60,11 @@ export default {
       let url = 'http://' + window.location.hostname + ':8087/api/query'
       this.$http.get(url, {params: option.params}).then((resp) => {
         // console.info(resp)
-        let series = this.convert(resp.body)
+        let wrapper = {
+          req: option.params,
+          resp: resp.body
+        }
+        let series = this.convert(wrapper)
         // console.info(series)
         option.chart.series = series
       }, (resp) => {
@@ -88,7 +92,11 @@ export default {
         },
         xAxis: {
           type: 'datetime',
-          labels: {}
+          labels: {
+            formatter: function () {
+              return Highcharts.dateFormat('%m-%d %H:%M', this.value)
+            }
+          }
         },
         yAxis: {
           title: {
@@ -108,39 +116,21 @@ export default {
             events: {}
           }
         },
-        // tooltip: {
-        //   crosshairs: true,
-        //   shared: true
-        // },
         tooltip: {
           crosshairs: true,
           shared: true,
           formatter: function () {
-            // let timeScale = this.points[0].point.timeScale
+            let timeScale = this.points[0].point.timeScale
             let formatTime = '%m-%d %H:%M:%S'
-            // if(timeScale >= 60000){
-            //     formatTime = '%m-%d %H:%M';
-            // }
-            let s = '<b>' + Highcharts.dateFormat(formatTime, this.x * 1000) + '</b>'
+            let timeScaleName = timeScale.second
+            if (timeScale.s >= 60) {
+              formatTime = '%m-%d %H:%M'
+              timeScaleName = timeScale.minute
+            }
+            let s = '<b>' + Highcharts.dateFormat(formatTime, this.x) + ', 间隔' + timeScaleName + '</b>'
             this.points.forEach((item) => {
               s += '<br/><span style="color:' + item.series.color + '">\u25CF</span>  ' + item.series.name + ': ' + item.y + option.attachment.unit
             })
-            // if (timeScale) {
-            //   s += '<b>, 间隔' + formatTimeScale(timeScale) + '</b>'
-            // }
-            // 自定义toolTips
-            // if (myToolTips) {
-            //   s += myToolTips(this, unitName, attachToolTipsMsg)
-            // } else {
-            //   $.each(this.points, function (index, element) {
-            //     var yValue = formatNumber(this.y, 2)
-            //     if (this.y >= 10000) {
-            //       yValue = formatNumberSize(this.y)
-            //     }
-            //     s += '<br/><span style="color:' + this.series.color + '">\u25CF</span>  ' + this.series.name + ': ' + yValue + unitName
-            //   })
-            // }
-
             return s
           }
         },
@@ -151,10 +141,11 @@ export default {
       }
       return options
     },
-    convert (data) {
+    convert (wrapper) {
       // console.info(data)
+      let timeScale = this.timeScale(wrapper.req.downsample)
       let series = []
-      data.forEach((item) => {
+      wrapper.resp.forEach((item) => {
         let serie = {
           name: item.tags.key,
           data: []
@@ -162,14 +153,36 @@ export default {
         Object.keys(item.dps).forEach((key) => {
           let value = item.dps[key]
           let point = {
-            x: parseInt(key),
-            y: value
+            x: parseInt(key) * 1000,
+            y: value,
+            timeScale: timeScale
           }
           serie.data.push(point)
         })
         series.push(serie)
       })
       return series
+    },
+    timeScale (scaleName) {
+      if (scaleName === '1m-sum') {
+        return {
+          s: 60,
+          m: 1,
+          second: '60秒',
+          minute: '1分'
+        }
+      } else if (scaleName === '5m-sum') {
+        return {
+          s: 300,
+          m: 5,
+          second: '300秒',
+          minute: '5分'
+        }
+      } else {
+        return {
+          s: 20
+        }
+      }
     }
   }
 }
