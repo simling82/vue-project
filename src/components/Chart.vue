@@ -1,6 +1,24 @@
 <template>
   <div class="chartElem">
     <h2>Chart test!</h2>
+    <group class="datetime-box">
+      <datetime
+        class="datetime-item"
+        title="时间段"
+        format="YYYY-MM-DD HH:mm"
+        :value="startDate"
+        :minuteList="minuteList"
+        @on-change="changeStartTime">
+      </datetime>
+      <datetime
+        class="datetime-item"
+        title="至"
+        format="YYYY-MM-DD HH:mm"
+        :value="endDate"
+        :minuteList="minuteList"
+        @on-change="changeEndTime">
+      </datetime>
+    </group>
     <div class="row" style="border: 1px solid rgb(204, 204, 204); position: relative; margin: 5px 0px; text-align: center;">
       <highcharts class="chart" :options="uriCount" :updateArgs="updateArgs"></highcharts>
     </div>
@@ -12,13 +30,20 @@
 
 <script>
 import Highcharts from 'highcharts'
+import Datetime from 'vux/src/components/datetime'
+import Group from 'vux/src/components/group'
 
 export default {
   data () {
     let data = {
       updateArgs: [true, true, {duration: 1000}],
       uriCount: this.buildChartOptions({attachment: {title: '请求数(次)', unit: '次'}}),
-      uriLatencySum: this.buildChartOptions({attachment: {title: '请求总耗时(毫秒)', unit: '毫秒'}})
+      uriLatencySum: this.buildChartOptions({attachment: {title: '请求总耗时(毫秒)', unit: '毫秒'}}),
+      startDate: this.getTimeFomart(new Date().getTime() - 3600 * 1000),
+      endDate: this.getTimeFomart(),
+      // startTimeFormat: this.getTimeFomart(this.startTime), // 先初始化开始时间
+      // endTimeFormat: this.getTimeFomart(this.endTime), // 再初始化结束时间
+      minuteList: ['00', '15', '30', '45'] // 时间格式
     }
     return data
   },
@@ -26,7 +51,11 @@ export default {
     this.init()
   },
   created () {
-
+    // Highcharts.setOptions({ global: { useUTC: false } })
+    // console.info(Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', new Date().getTime()))
+  },
+  components: {
+    Group, Datetime
   },
   methods: {
     init () {
@@ -34,8 +63,8 @@ export default {
         params: {
           metric: 'uri.count',
           service: 'mobAttention',
-          startTime: 1530523800,
-          endTime: 1530529200,
+          startDate: this.startDate,
+          endDate: this.endDate,
           aggregator: 'zimsum',
           downsample: '1m-sum',
           uri: '3110_1'
@@ -190,6 +219,24 @@ export default {
           s: 20
         }
       }
+    },
+    changeStartTime (value) {
+      console.log(value)
+      this.startDate = value
+      this.init()
+    },
+    changeEndTime (value) {
+      console.log(value)
+      this.endDate = value
+      this.init()
+    },
+    getTimeFomart (time) {
+      if (!time) {
+        time = new Date().getTime()
+      } else if (time instanceof Date) {
+        time = time.getTime()
+      }
+      return Highcharts.dateFormat('%Y-%m-%d %H:%M', time)
     }
   }
 }
