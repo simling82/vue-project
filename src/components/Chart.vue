@@ -76,10 +76,11 @@ export default {
         chart: this.uriCount
       })
       this.renderChart({
+        url: 'http://' + window.location.hostname + ':8087/api/queryStatistics{?metric}',
         params: {
-          metric: ['uri.latency.sum', 'uri.latency.max', 'uri.latency.min']
+          // metric: ['uri.latency.avg', 'uri.latency.sum', 'uri.latency.max', 'uri.latency.min']
         },
-        metricName: ['总和', '最大', '最小'],
+        metricName: ['平均', '总和', '最大', '最小'],
         chart: this.uriLatencySum
       })
     },
@@ -87,8 +88,10 @@ export default {
       let params = this.buildQuery(option)
       option.params = params
       // let url = 'http://localhost:8087/api/query'
-      let url = 'http://' + window.location.hostname + ':8087/api/query{?metric}'
-      this.$http.get(url, {params: params}).then((resp) => {
+      if (!option.url) {
+        option.url = 'http://' + window.location.hostname + ':8087/api/query{?metric}'
+      }
+      this.$http.get(option.url, {params: params}).then((resp) => {
         // console.info(resp)
         let wrapper = {
           req: option,
