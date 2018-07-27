@@ -104,7 +104,7 @@ export default {
         console.error(JSON.stringify(resp))
       })
     },
-    buildChartOptions (option) {
+    buildChartOptions: function (option) {
       let options = {
         chart: {
           renderTo: 'req_timeoutCount_chart_all',
@@ -158,7 +158,11 @@ export default {
             let timeScaleName = timeScale.second
             if (timeScale.s >= 60) {
               formatTime = '%m-%d %H:%M'
-              timeScaleName = timeScale.minute
+              if (timeScale.m >= 60) {
+                timeScaleName = timeScale.hour
+              } else {
+                timeScaleName = timeScale.minute
+              }
             }
             let s = '<b>' + Highcharts.dateFormat(formatTime, this.x) + ', 间隔' + timeScaleName + '</b>'
             this.points.forEach((item) => {
@@ -176,10 +180,10 @@ export default {
     },
     convert (wrapper) {
       // console.info(data)
-      let timeScale = this.timeScale(wrapper.req.params.downsample)
+      let timeScale = this.timeScale(wrapper.resp.query.downsample)
       let series = []
       let i = 0
-      wrapper.resp.forEach((item) => {
+      wrapper.resp.results.forEach((item) => {
         let metricName = ''
         if (Array.isArray(wrapper.req.metricName)) {
           metricName = wrapper.req.metricName[i++]
@@ -218,12 +222,28 @@ export default {
           second: '300秒',
           minute: '5分'
         }
+      } else if (scaleName === '15m-sum') {
+        return {
+          s: 900,
+          m: 15,
+          second: '900秒',
+          minute: '15分'
+        }
       } else if (scaleName === '1h-sum') {
         return {
           s: 3600,
           m: 60,
           second: '3600秒',
-          minute: '60分'
+          minute: '60分',
+          hour: '1时'
+        }
+      } else if (scaleName === '6h-sum') {
+        return {
+          s: 21600,
+          m: 360,
+          second: '21600秒',
+          minute: '360分',
+          hour: '6时'
         }
       } else {
         return {
@@ -252,7 +272,7 @@ export default {
     getTag () {
       // TODO 获取页面url需要查询的维度tag，如uri,进程实例和服务
       let tags = {
-        uri: '3110_1',
+        // uri: '3110_1',
         service: 'mobAttention',
         ips: null,
         ports: null
@@ -275,7 +295,7 @@ export default {
         startDate: this.startDate,
         endDate: this.endDate,
         aggregator: 'zimsum',
-        downsample: '1m-sum'
+        maxPoints: 100
       }
       Object.assign(params, tag.tags)
       Object.assign(params, option.params)
