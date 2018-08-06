@@ -44,8 +44,10 @@ export default {
       uriLatencyScale: this.buildChartOptions({title: this.getTag().tag + ' 请求时延区间(次)', unit: '次'}),
       uriCount: this.buildChartOptions({title: this.getTag().tag + ' 请求数(次)', unit: '次'}),
       uriLatencySum: this.buildChartOptions({title: this.getTag().tag + ' 请求时延统计(毫秒)', unit: '毫秒'}),
-      startDate: '2018-07-27 13:00:00', //this.getTimeFomart(new Date().getTime() - 3600 * 1000),
-      endDate: '2018-07-27 18:00:00', //this.getTimeFomart(),
+      startDate: '2018-07-27 13:00:00',
+      endDate: '2018-07-27 18:00:00',
+      // startDate: this.getTimeFomart(new Date().getTime() - 3600 * 1000),
+      // endDate: this.getTimeFomart(),
       minuteList: ['00', '15', '30', '45'] // 时间格式
     }
     return data

@@ -1,13 +1,17 @@
 /* eslint-disable */
+import Vue from 'vue'
+import Highcharts from 'highcharts'
+
 export default {
   renderChart (option) {
+    console.info(option)
     let params = this.buildQuery(option)
     option.params = params
     // let url = 'http://localhost:8087/api/query'
     if (!option.url) {
       option.url = 'http://' + window.location.hostname + ':8087/api/query{?metric}'
     }
-    this.$http.get(option.url, {params: params}).then((resp) => {
+    Vue.http.get(option.url, {params: params}).then((resp) => {
       // console.info(resp)
       let wrapper = {
         req: option,
@@ -34,7 +38,7 @@ export default {
       },
       title: {
         useHTML: true,
-        text: option.title,
+        text: this.getTag().tag + option.title,
         style: {
           font: 'normal 16px Verdana, sans-serif'
         }
@@ -181,18 +185,20 @@ export default {
     // TODO 获取页面url需要查询的维度tag，如uri,进程实例和服务
     let tags = {
       // uri: '3110_1',
-      service: 'mobAttention',
-      ips: null,
-      ports: null
+      service: 'mobAttention'
     }
     let tag = {
     }
     if (tags.uri) {
       tag.tag = tags.uri
-    } else if (tags.service) {
+    } else if (tags.service && !tags.ips) {
       tag.tag = tags.service
     } else if (tags.ips && tags.ports) {
-      tag.tag = tags.ips + tags.ports
+      tag.tag = tags.ips+ ':' + tags.ports
+    }  else if (tags.ips && tags.ports && tags.modelId) {
+      tag.tag = tags.ips + ':' + tags.ports + '/' + tags.modelId
+    } else {
+      tag.tag = ''
     }
     tag.tags = tags
     return tag
@@ -200,9 +206,7 @@ export default {
   buildQuery (option) {
     let tag = this.getTag()
     let params = {
-      startDate: this.startDate,
-      endDate: this.endDate,
-      aggregator: 'zimsum',
+      aggregator: 'none',
       maxPoints: 100
     }
     Object.assign(params, tag.tags)
