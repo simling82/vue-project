@@ -20,13 +20,7 @@
       </datetime>
     </group>
     <div class="row" style="border: 1px solid rgb(204, 204, 204); position: relative; margin: 5px 0px; text-align: center;">
-      <highcharts class="chart" :options="uriLatencyScale" :updateArgs="updateArgs"></highcharts>
-    </div>
-    <div class="row" style="border: 1px solid rgb(204, 204, 204); position: relative; margin: 5px 0px; text-align: center;">
-      <highcharts class="chart" :options="uriCount" :updateArgs="updateArgs"></highcharts>
-    </div>
-    <div class="row" style="border: 1px solid rgb(204, 204, 204); position: relative; margin: 5px 0px; text-align: center;">
-      <highcharts class="chart" :options="uriLatencySum" :updateArgs="updateArgs"></highcharts>
+      <highcharts class="chart" :options="uriThreadUseRate" :updateArgs="updateArgs"></highcharts>
     </div>
   </div>
 </template>
@@ -41,11 +35,8 @@ export default {
     let data = {
       updateArgs: [true, true, {duration: 1000}],
       uriThreadUseRate: this.buildChartOptions({title: this.getTag().tag + ' 线程使用率(%)', unit: '%'}),
-      uriLatencyScale: this.buildChartOptions({title: this.getTag().tag + ' 请求时延区间(次)', unit: '次'}),
-      uriCount: this.buildChartOptions({title: this.getTag().tag + ' 请求数(次)', unit: '次'}),
-      uriLatencySum: this.buildChartOptions({title: this.getTag().tag + ' 请求时延统计(毫秒)', unit: '毫秒'}),
-      startDate: '2018-07-27 13:00:00', //this.getTimeFomart(new Date().getTime() - 3600 * 1000),
-      endDate: '2018-07-27 18:00:00', //this.getTimeFomart(),
+      startDate: '2018-08-02 16:00', //this.getTimeFomart(new Date().getTime() - 3600 * 1000),
+      endDate: '2018-08-03 08:00', //this.getTimeFomart(),
       minuteList: ['00', '15', '30', '45'] // 时间格式
     }
     return data
@@ -63,26 +54,18 @@ export default {
   methods: {
     init () {
       this.renderChart({
+        url: 'http://' + window.location.hostname + ':8087/api/queryThreadUsageRate{?metric}',
         params: {
-          metric: ['uri.latency.scale.0.10', 'uri.latency.scale.10.20', 'uri.latency.scale.20.50', 'uri.latency.scale.50.100', 'uri.latency.scale.100.200', 'uri.latency.scale.200.500']
+          // uri: '3110_1',
+          service: 'mobAttention',
+          ips: '116.31.122.25',
+          ports: '8953',
+          modelId: 'queue_2',
+          modelType: '1',
+          aggregator: 'none',
+          maxPoints: 100
         },
-        metricName: ['[0,10)', '[10,20)', '[20,50)', '[50,100)', '[100,200)', '[200,500)'],
-        chart: this.uriLatencyScale
-      })
-      this.renderChart({
-        params: {
-          metric: 'uri.count'
-        },
-        metricName: '请求数',
-        chart: this.uriCount
-      })
-      this.renderChart({
-        url: 'http://' + window.location.hostname + ':8087/api/queryStatistics{?metric}',
-        params: {
-          // metric: ['uri.latency.avg', 'uri.latency.sum', 'uri.latency.max', 'uri.latency.min']
-        },
-        metricName: ['平均', '总和', '最大', '最小'],
-        chart: this.uriLatencySum
+        chart: this.uriThreadUseRate
       })
     },
     renderChart (option) {
@@ -191,7 +174,7 @@ export default {
         } else if (wrapper.req.metricName) {
           metricName = wrapper.req.metricName
         } else {
-          metricName = item.tags.key
+          metricName = decodeURIComponent(item.tags.key)
         }
         let serie = {
           name: metricName,
@@ -201,7 +184,7 @@ export default {
           let value = item.dps[key]
           let point = {
             x: parseInt(key) * 1000,
-            y: value,
+            y: Math.round(value * 100) / 100,
             timeScale: timeScale
           }
           serie.data.push(point)
@@ -211,28 +194,28 @@ export default {
       return series
     },
     timeScale (scaleName) {
-      if (scaleName === '1m-sum') {
+      if (scaleName.startsWith('1m')) {
         return {
           s: 60,
           m: 1,
           second: '60秒',
           minute: '1分'
         }
-      } else if (scaleName === '5m-sum') {
+      } else if (scaleName.startsWith('5m')) {
         return {
           s: 300,
           m: 5,
           second: '300秒',
           minute: '5分'
         }
-      } else if (scaleName === '15m-sum') {
+      } else if (scaleName.startsWith('15m')) {
         return {
           s: 900,
           m: 15,
           second: '900秒',
           minute: '15分'
         }
-      } else if (scaleName === '1h-sum') {
+      } else if (scaleName.startsWith('1h')) {
         return {
           s: 3600,
           m: 60,
@@ -240,7 +223,7 @@ export default {
           minute: '60分',
           hour: '1时'
         }
-      } else if (scaleName === '6h-sum') {
+      } else if (scaleName.startsWith('6h')) {
         return {
           s: 21600,
           m: 360,
@@ -275,7 +258,7 @@ export default {
     getTag () {
       // TODO 获取页面url需要查询的维度tag，如uri,进程实例和服务
       let tags = {
-        uri: '3110_1',
+        // uri: '3110_1',
         service: 'mobAttention',
         ips: null,
         ports: null
