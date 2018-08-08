@@ -1,6 +1,7 @@
 /* eslint-disable */
 import Vue from 'vue'
 import Highcharts from 'highcharts'
+import $sort from '@common/js/sort.js'
 
 export default {
   renderChart (option) {
@@ -19,6 +20,9 @@ export default {
       }
       let series = this.convert(wrapper)
       // console.info(series)
+      if(option.sort) {
+        series = option.sort(series)
+      }
       option.chart.series = series
     }, (resp) => {
       console.error(JSON.stringify(resp))
