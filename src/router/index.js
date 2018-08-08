@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Chart from '@/components/Chart'
-import Chart1 from '@/components/Chart1'
+import Chart from '@components/Chart'
+import Chart1 from '@components/Chart1'
 
 Vue.use(Router)
 

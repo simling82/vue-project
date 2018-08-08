@@ -127,6 +127,7 @@ export default {
       })
       series.push(serie)
     })
+    console.info("series: " + JSON.stringify(series))
     return series
   },
   timeScale (scaleName) {
