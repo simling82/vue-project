@@ -41,7 +41,6 @@ export default {
         enabled: false
       },
       title: {
-        useHTML: true,
         text: this.getTag().tag + option.title,
         style: {
           font: 'normal 16px Verdana, sans-serif'
