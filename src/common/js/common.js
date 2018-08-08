@@ -187,9 +187,10 @@ export default {
   },
   getTag () {
     // TODO 获取页面url需要查询的维度tag，如uri,进程实例和服务
+    // console.info('uri: ' + $utils.query('uri'))
     let tags = {
-      uri: decodeURIComponent($utils.query('uri')),
-      service: decodeURIComponent($utils.query('service')),
+      uri: decodeURIComponent($utils.query('uri') || ''),
+      service: decodeURIComponent($utils.query('service') || ''),
       ips: $utils.query('ips'),
       ports: $utils.query('ports'),
       modelId: $utils.query('modelId'),
