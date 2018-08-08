@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Vue from 'vue'
 import Highcharts from 'highcharts'
-import $sort from '@common/js/sort.js'
+import $utils from '@common/js/utils.js'
 
 export default {
   renderChart (option) {
@@ -130,7 +130,7 @@ export default {
       })
       series.push(serie)
     })
-    console.info("series: " + JSON.stringify(series))
+    // console.info("series: " + JSON.stringify(series))
     return series
   },
   timeScale (scaleName) {
@@ -188,8 +188,12 @@ export default {
   getTag () {
     // TODO 获取页面url需要查询的维度tag，如uri,进程实例和服务
     let tags = {
-      // uri: '3110_1',
-      service: 'mobAttention'
+      uri: decodeURIComponent($utils.query('uri')),
+      service: decodeURIComponent($utils.query('service')),
+      ips: $utils.query('ips'),
+      ports: $utils.query('ports'),
+      modelId: $utils.query('modelId'),
+      modelType: $utils.query('modelType')
     }
     let tag = {
     }

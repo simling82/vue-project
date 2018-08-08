@@ -59,14 +59,14 @@ export default {
       $common.renderChart({
         url: 'http://' + window.location.hostname + ':8087/api/queryThreadUsageRate{?metric}',
         params: {
-          uri: '*', // 3110_231，可以模糊匹配，并分组
+          // uri: '*', // 3110_231，可以模糊匹配，并分组
           startDate: this.startDate,
           endDate: this.endDate,
-          service: 'mobAttention',
-          ips: '116.31.122.25',
-          ports: '8951',
-          modelId: 'queue_2',
-          modelType: '1',
+          // service: 'mobAttention',
+          // ips: '116.31.122.25',
+          // ports: '8951',
+          // modelId: 'queue_2',
+          // modelType: '1',
           aggregator: 'avg'
         },
         chart: this.uriThreadUseRate,

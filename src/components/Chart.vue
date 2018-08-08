@@ -57,6 +57,7 @@ export default {
   created () {
     // Highcharts.setOptions({ global: { useUTC: false } })
     // console.info(Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', new Date().getTime()))
+
   },
   components: {
     Group, Datetime
