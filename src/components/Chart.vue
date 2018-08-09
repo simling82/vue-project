@@ -32,8 +32,7 @@
 </template>
 
 <script>
-import Datetime from 'vux/src/components/datetime'
-import Group from 'vux/src/components/group'
+import {Group, Datetime} from 'vux'
 import $common from '@common/js/common.js'
 
 export default {
@@ -109,17 +108,4 @@ export default {
 </script>
 
 <style scoped>
-input[type="color"]::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-#colorPicker {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  width: 30px;
-  height: 30px;
-}
-.numberInput {
-  width: 30px;
-}
 </style>
