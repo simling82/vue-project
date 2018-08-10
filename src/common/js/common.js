@@ -4,7 +4,7 @@ import Highcharts from 'highcharts'
 import $utils from '@common/js/utils.js'
 
 export default {
-  renderChart (option) {
+  renderChart (option, fn) {
     console.info(option)
     let params = this.buildQuery(option)
     option.params = params
@@ -20,15 +20,17 @@ export default {
       }
       let series = this.convert(wrapper)
       // console.info(series)
-      if(option.sort) {
+      if (option.sort) {
         series = option.sort(series)
       }
       option.chart.series = series
+      if (fn)
+        fn(resp.body)
     }, (resp) => {
       console.error(JSON.stringify(resp))
     })
   },
-  buildChartOptions: function (option) {
+  buildChartOptions (option) {
     let options = {
       chart: {
         renderTo: 'req_timeoutCount_chart_all',
@@ -41,7 +43,7 @@ export default {
         enabled: false
       },
       title: {
-        text: this.getTag().tag + option.title,
+        text: this.getTag().tag + ' ' + option.title,
         style: {
           font: 'normal 16px Verdana, sans-serif'
         }
@@ -97,7 +99,7 @@ export default {
       exporting: {
         enabled: false
       },
-      series: []
+      series: null
     }
     return options
   },
@@ -198,13 +200,13 @@ export default {
     }
     let tag = {
     }
-    if (tags.uri) {
+    if (tags.uri && tags.uri != '*') {
       tag.tag = tags.uri
     } else if (tags.service && !tags.ips) {
       tag.tag = tags.service
-    } else if (tags.ips && tags.ports) {
-      tag.tag = tags.ips+ ':' + tags.ports
-    }  else if (tags.ips && tags.ports && tags.modelId) {
+    } else if (tags.ips && tags.ports && !tags.modelId) {
+      tag.tag = tags.ips + ':' + tags.ports
+    } else if (tags.ips && tags.ports && tags.modelId) {
       tag.tag = tags.ips + ':' + tags.ports + '/' + tags.modelId
     } else {
       tag.tag = ''

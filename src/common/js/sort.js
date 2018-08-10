@@ -1,5 +1,5 @@
 export default {
-  useRateSortBySeries: function (series) {
+  sort: function (series) {
     let array = []
     let result = []
     let uriMap = new Map()
