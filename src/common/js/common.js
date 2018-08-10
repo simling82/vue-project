@@ -193,6 +193,7 @@ export default {
     let tags = {
       uri: decodeURIComponent($utils.query('uri') || ''),
       service: decodeURIComponent($utils.query('service') || ''),
+      group: decodeURIComponent($utils.query('group') || ''),
       ips: $utils.query('ips'),
       ports: $utils.query('ports'),
       modelId: $utils.query('modelId'),
