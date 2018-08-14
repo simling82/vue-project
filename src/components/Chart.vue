@@ -90,7 +90,7 @@ export default {
           endDate: this.endDate,
           aggregator: 'zimsum'
         },
-        metricName: ['平均', '总和', '最大', '最小'],
+        metricName: ['平均', '总和'],
         chart: this.uriLatencySum
       })
     },

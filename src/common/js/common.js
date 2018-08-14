@@ -194,21 +194,22 @@ export default {
       uri: decodeURIComponent($utils.query('uri') || ''),
       service: decodeURIComponent($utils.query('service') || ''),
       group: decodeURIComponent($utils.query('group') || ''),
-      ips: $utils.query('ips'),
-      ports: $utils.query('ports'),
-      modelId: $utils.query('modelId'),
-      modelType: $utils.query('modelType')
+      ips: $utils.query('ips') || '' ,
+      ports: $utils.query('ports') || '',
+      modelId: $utils.query('modelId') || '',
+      modelType: $utils.query('modelType') || ''
     }
     let tag = {
+      tag : ''
     }
-    if (tags.uri && tags.uri != '*') {
+    if (tags.ips && tags.ports && !tags.modelId) {
+      tag.tag = tags.ips + ':' + tags.ports
+    } else if (tags.ips && tags.ports && tags.modelId) {
+      tag.tag = tags.ips + ':' + tags.ports + '/' + tags.uri
+    } else if (tags.uri && tags.uri != '*') {
       tag.tag = tags.uri
     } else if (tags.service && !tags.ips) {
       tag.tag = tags.service
-    } else if (tags.ips && tags.ports && !tags.modelId) {
-      tag.tag = tags.ips + ':' + tags.ports
-    } else if (tags.ips && tags.ports && tags.modelId) {
-      tag.tag = tags.ips + ':' + tags.ports + '/' + tags.modelId
     } else {
       tag.tag = ''
     }
