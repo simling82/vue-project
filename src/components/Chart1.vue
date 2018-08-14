@@ -28,6 +28,9 @@
     <div class="row" style="border: 1px solid rgb(204, 204, 204); position: relative; margin: 5px 0px; text-align: center;">
       <highcharts class="chart" :options="uriLatencySum" :updateArgs="updateArgs"></highcharts>
     </div>
+    <div class="row" style="border: 1px solid rgb(204, 204, 204); position: relative; margin: 5px 0px; text-align: center;">
+      <highcharts class="chart" :options="uriSuccessRate" :updateArgs="updateArgs"></highcharts>
+    </div>
     <!--<div class="row" style="border: 1px solid rgb(204, 204, 204); position: relative; margin: 5px 0px; text-align: center;">-->
       <!--<highcharts class="chart" :options="uriLatencyAvg" :updateArgs="updateArgs"></highcharts>-->
     <!--</div>-->
@@ -46,6 +49,7 @@ export default {
       uriThreadUseRate: $common.buildChartOptions({title: '线程使用率(%)', unit: '%'}),
       uriCount: $common.buildChartOptions({title: '请求数(次)', unit: '次'}),
       uriLatencySum: $common.buildChartOptions({title: '请求时延总数(毫秒)', unit: '毫秒'}),
+      uriSuccessRate: $common.buildChartOptions({title: 'RPC成功率(%)', unit: '%'}),
       // uriLatencyAvg: $common.buildChartOptions({title: '请求时延平均(毫秒)', unit: '毫秒'}),
       startDate: '2018-08-02 16:00',
       endDate: '2018-08-03 08:00',
@@ -121,6 +125,20 @@ export default {
           this.watchFlag++
         }
         this.sumData = resp
+      })
+      $common.renderChart({
+        url: 'http://' + window.location.hostname + ':8087/api/querySuccessRate{?metric}',
+        params: {
+          startDate: this.startDate,
+          endDate: this.endDate,
+          modelType: 2,
+          modelId: null,
+          aggregator: 'zimsum'
+        },
+        chart: this.uriSuccessRate,
+        sort: (series) => {
+          return $sort.sort(series)
+        }
       })
     },
     changeStartTime (value) {
