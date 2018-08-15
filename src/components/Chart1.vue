@@ -26,7 +26,7 @@
       <highcharts class="chart" :options="uriCount" :updateArgs="updateArgs"></highcharts>
     </div>
     <div class="row" style="border: 1px solid rgb(204, 204, 204); position: relative; margin: 5px 0px; text-align: center;">
-      <highcharts class="chart" :options="uriLatencySum" :updateArgs="updateArgs"></highcharts>
+      <highcharts class="chart" :options="uriLatencyAvg" :updateArgs="updateArgs"></highcharts>
     </div>
     <div class="row" style="border: 1px solid rgb(204, 204, 204); position: relative; margin: 5px 0px; text-align: center;">
       <highcharts class="chart" :options="uriSuccessRate" :updateArgs="updateArgs"></highcharts>
@@ -48,9 +48,8 @@ export default {
       updateArgs: [true, true, {duration: 1000}],
       uriThreadUseRate: $common.buildChartOptions({title: '线程使用率(%)', unit: '%'}),
       uriCount: $common.buildChartOptions({title: '请求数(次)', unit: '次'}),
-      uriLatencySum: $common.buildChartOptions({title: '请求时延总数(毫秒)', unit: '毫秒'}),
       uriSuccessRate: $common.buildChartOptions({title: 'RPC成功率(%)', unit: '%'}),
-      // uriLatencyAvg: $common.buildChartOptions({title: '请求时延平均(毫秒)', unit: '毫秒'}),
+      uriLatencyAvg: $common.buildChartOptions({title: '请求时延平均(毫秒)', unit: '毫秒'}),
       startDate: '2018-08-02 16:00',
       endDate: '2018-08-03 08:00',
       watchFlag: 0,
@@ -110,13 +109,13 @@ export default {
         this.countData = resp
       })
       $common.renderChart({
+        url: 'http://' + window.location.hostname + ':8087/api/queryLatencyAvg{?metric}',
         params: {
-          metric: 'uri.latency.sum',
           startDate: this.startDate,
           endDate: this.endDate,
           aggregator: 'zimsum'
         },
-        chart: this.uriLatencySum,
+        chart: this.uriLatencyAvg,
         sort: (series) => { // 自定义排序实现：线程使用率排序
           return $sort.sort(series)
         }
